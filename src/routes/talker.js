@@ -68,4 +68,13 @@ router.put('/:id',
     res.status(200).json(talkerUpdated);
 });
 
+router.delete('/:id', validateToken, async (req, res) => {
+  const { id } = req.params;
+  const talkers = await readFile();
+  
+  const talkerDeleted = talkers.filter((e) => e.id !== +id);
+
+  writeFile(talkerDeleted);
+  return res.status(204).end();
+});
 module.exports = router;
