@@ -5,6 +5,20 @@ const { validateToken, validateTalkKeys, validateName,
 const router = express.Router();
 const { readFile, writeFile } = require('../utils/fileHandle');
 
+router.get('/search', validateToken, async (req, res) => {
+  const { q } = req.query;
+  const talkers = await readFile();
+  
+  if (!q) {
+    return res.status(200).json(talkers);
+  }
+  
+  const talkersSearched = talkers
+    .filter(({ name }) => name.toLowerCase().includes(q.toLowerCase()));
+  
+  return res.status(200).json(talkersSearched);
+});
+
 router.get('/', async (_req, res) => {
   const talkers = await readFile();
   
@@ -41,7 +55,6 @@ router.post('/',
   async (req, res) => {
     const talkers = await readFile();
     const newTalker = { id: talkers[talkers.length - 1].id + 1, ...req.body };
-    talkers.push(newTalker);
     const allTalkers = [...talkers, newTalker];
     writeFile(allTalkers);
     res.status(201).json(newTalker);
@@ -77,4 +90,5 @@ router.delete('/:id', validateToken, async (req, res) => {
   writeFile(talkerDeleted);
   return res.status(204).end();
 });
+
 module.exports = router;
